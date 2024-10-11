@@ -8,6 +8,7 @@ import (
 
 // Node is the interface that all nodes in the AST implement
 // holds the literal value of the token
+// and a string representation of the node
 type Node interface {
 	TokenLiteral() string
 	String() string
@@ -33,20 +34,20 @@ type Program struct {
 // Represents a var statement
 type VarStatement struct {
 	Token token.Token // the token.VAR token
-	Name  *Identifier
-	Value Expression
+	Name  *Identifier // variable name
+	Value Expression  // variable value being set
 }
 
 // Represents an identifier
 type Identifier struct {
 	Token token.Token // the token.IDENT token
-	Value string
+	Value string      // the name/value of the identifier
 }
 
 // Represents an return statement
 type ReturnStatement struct {
 	Token       token.Token // the 'return' token
-	ReturnValue Expression
+	ReturnValue Expression  // the value being returned
 }
 
 // Represents an expression statement
@@ -56,8 +57,8 @@ type ExpressionStatement struct {
 }
 
 type IntegerLiteral struct {
-	Token token.Token
-	Value int64
+	Token token.Token // the token.INT token
+	Value int64       // the value of the integer
 }
 
 // variable
