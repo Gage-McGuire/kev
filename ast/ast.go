@@ -56,9 +56,25 @@ type ExpressionStatement struct {
 	Expression Expression
 }
 
+// Represents an integer literal
 type IntegerLiteral struct {
 	Token token.Token // the token.INT token
 	Value int64       // the value of the integer
+}
+
+// Represents a prefix expression with a prefix operator
+type PrefixExpression struct {
+	Token    token.Token // the prefix token, e.g. !
+	Operator string      // the operator, e.g. !
+	Right    Expression  // the right expression
+}
+
+// Represents an infix expression with an infix operator
+type InfixExpression struct {
+	Token    token.Token // the infix token, e.g. +
+	Left     Expression  // the left expression
+	Operator string      // the operator, e.g. +
+	Right    Expression  // the right expression
 }
 
 // variable
@@ -91,6 +107,18 @@ func (il *IntegerLiteral) TokenLiteral() string {
 	return il.Token.Literal
 }
 
+// prefix
+func (pe *PrefixExpression) expressionNode() {}
+func (pe *PrefixExpression) TokenLiteral() string {
+	return pe.Token.Literal
+}
+
+// infix
+func (ie *InfixExpression) expressionNode() {}
+func (ie *InfixExpression) TokenLiteral() string {
+	return ie.Token.Literal
+}
+
 // gets the root node of the AST
 func (p *Program) TokenLiteral() string {
 	if len(p.Statements) > 0 {
@@ -120,6 +148,7 @@ func (vs *VarStatement) String() string {
 		out.WriteString(vs.Value.String())
 	}
 	out.WriteString(";")
+
 	return out.String()
 }
 
@@ -132,6 +161,7 @@ func (rs *ReturnStatement) String() string {
 		out.WriteString(rs.ReturnValue.String())
 	}
 	out.WriteString(";")
+
 	return out.String()
 }
 
@@ -151,4 +181,29 @@ func (i *Identifier) String() string {
 // converts the integer literal to a string
 func (il *IntegerLiteral) String() string {
 	return il.TokenLiteral()
+}
+
+// converts the prefix expression to a string
+func (pe *PrefixExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(pe.Operator)
+	out.WriteString(pe.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}
+
+// converts the infix expression to a string
+func (ie *InfixExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(ie.Left.String())
+	out.WriteString(" " + ie.Operator + " ")
+	out.WriteString(ie.Right.String())
+	out.WriteString(")")
+
+	return out.String()
 }
