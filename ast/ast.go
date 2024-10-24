@@ -77,6 +77,12 @@ type InfixExpression struct {
 	Right    Expression  // the right expression
 }
 
+// Represents a boolean expression
+type Boolean struct {
+	Token token.Token
+	Value bool
+}
+
 // variable
 func (vs *VarStatement) statementNode() {}
 func (vs *VarStatement) TokenLiteral() string {
@@ -117,6 +123,12 @@ func (pe *PrefixExpression) TokenLiteral() string {
 func (ie *InfixExpression) expressionNode() {}
 func (ie *InfixExpression) TokenLiteral() string {
 	return ie.Token.Literal
+}
+
+// boolean
+func (b *Boolean) expressionNode() {}
+func (b *Boolean) TokenLiteral() string {
+	return b.Token.Literal
 }
 
 // gets the root node of the AST
@@ -181,6 +193,11 @@ func (i *Identifier) String() string {
 // converts the integer literal to a string
 func (il *IntegerLiteral) String() string {
 	return il.TokenLiteral()
+}
+
+// converts the boolean to a string
+func (b *Boolean) String() string {
+	return b.TokenLiteral()
 }
 
 // converts the prefix expression to a string
