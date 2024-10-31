@@ -72,6 +72,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.TRUE, p.parseBoolean)
 	p.registerPrefix(token.FALSE, p.parseBoolean)
+	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
+	p.registerPrefix(token.IF, p.parseIfExpression)
 
 	// initialize the infixParseFunc map
 	p.infixParseFunc = make(map[token.TokenType]infixParseFunc)
@@ -198,6 +200,21 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	return leftExp
 }
 
+// Parses a grouped expression
+func (p *Parser) parseGroupedExpression() ast.Expression {
+	// move to the next token
+	p.nextToken()
+
+	// parse the expression within the parentheses
+	exp := p.parseExpression(LOWEST)
+
+	// check if the next token is a closing parenthesis
+	if !p.expectPeek(token.RPAREN) {
+		return nil
+	}
+	return exp
+}
+
 // Parses an expression statement
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	// construct the expression statement node
@@ -285,6 +302,80 @@ func (p *Parser) parseBoolean() ast.Expression {
 	exp.Value = p.currentTokenIs(token.TRUE)
 
 	return exp
+}
+
+// Parses an if expression
+func (p *Parser) parseIfExpression() ast.Expression {
+	// construct the if expression node
+	expression := &ast.IfExpression{Token: p.currentToken}
+
+	// check if the next token is a left parenthesis
+	if !p.expectPeek(token.LPAREN) {
+		return nil
+	}
+
+	// move to the next token
+	// this will be the start of the condition
+	p.nextToken()
+	expression.Condition = p.parseExpression(LOWEST)
+
+	// check if the next token is a right parenthesis
+	if !p.expectPeek(token.RPAREN) {
+		return nil
+	}
+
+	// check if the next token is a left brace
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	// parse the block statement
+	// this will be the consequence
+	// parseBlockStatement() will parse until the right brace
+	expression.Consequence = p.parseBlockStatement()
+
+	// check if there is an alternative
+	if p.peekTokenIs(token.ELSE) {
+		// move to the next token
+		// this will be the start of the alternative
+		p.nextToken()
+
+		// check if the next token is a left brace
+		if !p.expectPeek(token.LBRACE) {
+			return nil
+		}
+
+		// parse the block statement
+		// this will be the alternative
+		// parseBlockStatement() will parse until the right brace
+		expression.Alternative = p.parseBlockStatement()
+	}
+
+	return expression
+}
+
+// Parses a block statement
+func (p *Parser) parseBlockStatement() *ast.BlockStatement {
+	// construct the block statement node
+	block := &ast.BlockStatement{Token: p.currentToken}
+
+	// initialize the statements array
+	block.Statements = []ast.Statement{}
+
+	// move to the next token
+	p.nextToken()
+
+	// parse all the statements within the block
+	// until the right brace or end of file
+	// parseStatement() will parse each statement and add it to the array
+	for !p.currentTokenIs(token.RBRACE) && !p.currentTokenIs(token.EOF) {
+		stmt := p.parseStatement()
+		if stmt != nil {
+			block.Statements = append(block.Statements, stmt)
+		}
+		p.nextToken()
+	}
+	return block
 }
 
 // Parses an identifier
