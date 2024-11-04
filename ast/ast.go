@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/kev/token"
 )
@@ -97,6 +98,20 @@ type BlockStatement struct {
 	Statements []Statement
 }
 
+// Represents a function literal
+type FunctionLiteral struct {
+	Token      token.Token // the 'func' token
+	Parameters []*Identifier
+	Body       *BlockStatement
+}
+
+// Represents a call expression
+type CallExpression struct {
+	Token     token.Token  // the '(' token
+	Function  Expression   // the function being called
+	Arguments []Expression // the arguments being passed to the function
+}
+
 // variable
 func (vs *VarStatement) statementNode() {}
 func (vs *VarStatement) TokenLiteral() string {
@@ -155,6 +170,18 @@ func (ie *IfExpression) TokenLiteral() string {
 func (bs *BlockStatement) statementNode() {}
 func (bs *BlockStatement) TokenLiteral() string {
 	return bs.Token.Literal
+}
+
+// function
+func (fl *FunctionLiteral) expressionNode() {}
+func (fl *FunctionLiteral) TokenLiteral() string {
+	return fl.Token.Literal
+}
+
+// call
+func (ce *CallExpression) expressionNode() {}
+func (ce *CallExpression) TokenLiteral() string {
+	return ce.Token.Literal
 }
 
 // gets the root node of the AST
@@ -251,6 +278,7 @@ func (ie *InfixExpression) String() string {
 	return out.String()
 }
 
+// converts the if expression to a string
 func (ie *IfExpression) String() string {
 	var out bytes.Buffer
 
@@ -267,12 +295,46 @@ func (ie *IfExpression) String() string {
 	return out.String()
 }
 
+// converts the block statement to a string
 func (bs *BlockStatement) String() string {
 	var out bytes.Buffer
 
 	for _, s := range bs.Statements {
 		out.WriteString(s.String())
 	}
+
+	return out.String()
+}
+
+// converts the function literal to a string
+func (fl *FunctionLiteral) String() string {
+	var out bytes.Buffer
+
+	params := []string{}
+	for _, p := range fl.Parameters {
+		params = append(params, p.String())
+	}
+	out.WriteString(fl.TokenLiteral())
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(") ")
+	out.WriteString(fl.Body.String())
+
+	return out.String()
+}
+
+// converts the call expression to a string
+func (ce *CallExpression) String() string {
+	var out bytes.Buffer
+
+	args := []string{}
+	for _, a := range ce.Arguments {
+		args = append(args, a.String())
+	}
+	out.WriteString(ce.Function.String())
+	out.WriteString("(")
+	out.WriteString(strings.Join(args, ", "))
+	out.WriteString(")")
 
 	return out.String()
 }
