@@ -9,6 +9,7 @@ const (
 	BOOLEAN_OBJ      = "BOOLEAN"
 	NULL_OBJ         = "NULL"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
+	ERROR_OBJ        = "ERROR"
 )
 
 // Base representation of an object.
@@ -38,6 +39,11 @@ type Null struct{}
 // Represents a return value object
 type ReturnValue struct {
 	Value Object
+}
+
+// Represents an error object
+type Error struct {
+	Message string
 }
 
 // Returns the value of the integer object
@@ -79,4 +85,15 @@ func (rv *ReturnValue) Inspect() string {
 // which is always a RETURN_VALUE_OBJ
 func (rv *ReturnValue) Type() ObjectType {
 	return RETURN_VALUE_OBJ
+}
+
+// Returns the value of the error object
+func (e *Error) Inspect() string {
+	return "ERROR: " + e.Message
+}
+
+// Returns the type of the error object
+// which is always a ERROR_OBJ
+func (e *Error) Type() ObjectType {
+	return ERROR_OBJ
 }
