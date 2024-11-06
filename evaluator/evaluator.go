@@ -24,18 +24,33 @@ var (
 func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 
+	// If the node is a *ast.Program, we evaluate the statements
+	case *ast.Program:
+		return evalProgram(node.Statements)
+
 	/*
 	 * Statements
 	 */
-
-	// If the node is a *ast.Program, we evaluate the statements
-	case *ast.Program:
-		return evalStatements(node.Statements)
 
 	// If the node is a *ast.ExpressionStatement,
 	// we evaluate the expression by recursively calling Eval()
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
+
+	// If the node is a *ast.BlockStatement,
+	// we evaluate the statements.
+	// example: { <statement1>; <statement2>; ... }
+	// or if-else blocks
+	case *ast.BlockStatement:
+		return evalBlockStatement(node)
+
+	// If the node is a *ast.ReturnStatement,
+	// we evaluate the return value
+	// and return an object.ReturnValue object
+	// which holds the value of the return statement
+	case *ast.ReturnStatement:
+		val := Eval(node.ReturnValue)
+		return &object.ReturnValue{Value: val}
 
 	/*
 	 * Expressions
@@ -65,19 +80,52 @@ func Eval(node ast.Node) object.Object {
 		left := Eval(node.Left)
 		right := Eval(node.Right)
 		return evalInfixExpression(node.Operator, left, right)
+
+	// If the node is a *ast.IfExpression,
+	// we evaluate the condition and return the corresponding
+	// consequence or alternative
+	case *ast.IfExpression:
+		return evalIfExpression(node)
+
 	}
 
 	// If we don't recognize the node, we return nil
 	return nil
 }
 
-// evalStatements evaluates a slice of statements,
+// evalProgram evaluates a slice of statements,
 // returning the Eval() result of the last statement
-func evalStatements(stmts []ast.Statement) object.Object {
+func evalProgram(stmts []ast.Statement) object.Object {
 	var result object.Object
-
 	for _, stmt := range stmts {
 		result = Eval(stmt)
+
+		// If the result is a object.ReturnValue,
+		// we break the loop and
+		// return the unwraped value of the object.ReturnValue
+		if returnValue, ok := result.(*object.ReturnValue); ok {
+			return returnValue.Value
+		}
+	}
+
+	return result
+}
+
+// evalBlockStatement evaluates a block statement
+// by evaluating each statement in the block
+// and returning the Eval() result of the last statement
+func evalBlockStatement(block *ast.BlockStatement) object.Object {
+	var result object.Object
+	for _, stmt := range block.Statements {
+		result = Eval(stmt)
+
+		// If the result is a object.ReturnValue,
+		// we break the loop and
+		// return the value of the object.ReturnValue
+		// this is the wrapped value, must let evalProgram unwrap it
+		if result != nil && result.Type() == object.RETURN_VALUE_OBJ {
+			return result
+		}
 	}
 
 	return result
@@ -185,6 +233,9 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	}
 }
 
+// evaluates the infix expression for booleans
+// by checking the operator returning the result.
+// Example: <leftValue> <operator> <rightValue>
 func evalBooleanInfixExpression(operator string, left, right object.Object) object.Object {
 	leftValue := left.(*object.Boolean).Value
 	rightValue := right.(*object.Boolean).Value
@@ -196,5 +247,35 @@ func evalBooleanInfixExpression(operator string, left, right object.Object) obje
 		return nativeBoolToBooleanObject(leftValue != rightValue)
 	default:
 		return NULL
+	}
+}
+
+// evaluates the if expression by checking the condition
+// and returning the consequence or alternative
+// based on if the condition is true or not
+// Example: if (<condition>) { <consequence> } else { <alternative> }
+func evalIfExpression(ie *ast.IfExpression) object.Object {
+	condition := Eval(ie.Condition)
+	if isTruthy(condition) {
+		return Eval(ie.Consequence)
+	} else if ie.Alternative != nil {
+		return Eval(ie.Alternative)
+	} else {
+		return NULL
+	}
+}
+
+// isTruthy checks if the object is truthy
+// by checking if it is NULL, TRUE or FALSE
+func isTruthy(obj object.Object) bool {
+	switch obj {
+	case NULL:
+		return false
+	case TRUE:
+		return true
+	case FALSE:
+		return false
+	default:
+		return true
 	}
 }

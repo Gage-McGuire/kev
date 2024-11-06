@@ -5,9 +5,10 @@ import "fmt"
 type ObjectType string
 
 const (
-	INTEGER_OBJ = "INTEGER"
-	BOOLEAN_OBJ = "BOOLEAN"
-	NULL_OBJ    = "NULL"
+	INTEGER_OBJ      = "INTEGER"
+	BOOLEAN_OBJ      = "BOOLEAN"
+	NULL_OBJ         = "NULL"
+	RETURN_VALUE_OBJ = "RETURN_VALUE"
 )
 
 // Base representation of an object.
@@ -33,6 +34,11 @@ type Boolean struct {
 
 // Represents a null object
 type Null struct{}
+
+// Represents a return value object
+type ReturnValue struct {
+	Value Object
+}
 
 // Returns the value of the integer object
 func (i *Integer) Inspect() string {
@@ -62,4 +68,15 @@ func (n *Null) Inspect() string {
 // Returns the type of the null object
 func (n *Null) Type() ObjectType {
 	return NULL_OBJ
+}
+
+// Returns the value of the return value object
+func (rv *ReturnValue) Inspect() string {
+	return rv.Value.Inspect()
+}
+
+// Returns the type of the return value object
+// which is always a RETURN_VALUE_OBJ
+func (rv *ReturnValue) Type() ObjectType {
+	return RETURN_VALUE_OBJ
 }
