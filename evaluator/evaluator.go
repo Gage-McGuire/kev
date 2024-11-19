@@ -113,6 +113,18 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.IfExpression:
 		return evalIfExpression(node, env)
 
+	// If the node is a *ast.CallExpression,
+	// we evaluate the function and return the result
+	case *ast.CallExpression:
+		function := Eval(node.Function, env)
+		if isError(function) {
+			return function
+		}
+		args := evalExpressions(node.Arguments, env)
+		if len(args) == 1 && isError(args[0]) {
+			return args[0]
+		}
+
 	/*
 	 * Identifiers
 	 */
@@ -121,6 +133,17 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	// we evaluate the identifier
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
+
+	/*
+	 * Literals
+	 */
+
+	// If the node is a *ast.FunctionLiteral,
+	// we return an object.Function
+	case *ast.FunctionLiteral:
+		params := node.Parameters
+		body := node.Body
+		return &object.Function{Parameters: params, Body: body, Env: env}
 	}
 
 	// If we don't recognize the node, we return nil
@@ -324,6 +347,19 @@ func evalIdentifier(node *ast.Identifier, env *object.Environment) object.Object
 		return newError("identifier not found: " + node.Value)
 	}
 	return val
+}
+
+// Iterates over a slice of ast.Expressions and evaluates them
+func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Object {
+	var result []object.Object
+	for _, e := range exps {
+		evaluated := Eval(e, env)
+		if isError(evaluated) {
+			return []object.Object{evaluated}
+		}
+		result = append(result, evaluated)
+	}
+	return result
 }
 
 // isTruthy checks if the object is truthy

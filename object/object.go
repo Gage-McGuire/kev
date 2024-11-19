@@ -143,19 +143,31 @@ func (e *Error) Type() ObjectType {
 // with an empty store
 func NewEnvironment() *Environment {
 	s := make(map[string]Object)
-	return &Environment{store: s}
+	return &Environment{store: s, outer: nil}
+}
+
+// Creates a new environment
+// which is enclosed and limited to its block statement
+func NewEnclosedEnvironment(outer *Environment) *Environment {
+	env := NewEnvironment()
+	env.outer = outer
+	return env
 }
 
 // Represents an environment with a store
 // that holds the bindings of the variables
 type Environment struct {
 	store map[string]Object
+	outer *Environment
 }
 
 // Returns the object with the given name
 // contained in the store
 func (e *Environment) Get(name string) (Object, bool) {
 	obj, ok := e.store[name]
+	if !ok && e.outer != nil {
+		obj, ok = e.outer.Get(name)
+	}
 	return obj, ok
 }
 
