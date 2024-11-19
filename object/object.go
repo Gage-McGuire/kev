@@ -1,6 +1,12 @@
 package object
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+	"strings"
+
+	"github.com/kev/ast"
+)
 
 type ObjectType string
 
@@ -10,6 +16,7 @@ const (
 	NULL_OBJ         = "NULL"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
 	ERROR_OBJ        = "ERROR"
+	FUNCTION_OBJ     = "FUNCTION"
 )
 
 // Base representation of an object.
@@ -21,6 +28,13 @@ type Object interface {
 
 	// value of the object
 	Inspect() string
+}
+
+// Represents a function object
+type Function struct {
+	Parameters []*ast.Identifier
+	Body       *ast.BlockStatement
+	Env        *Environment
 }
 
 // Represents a integer object
@@ -44,6 +58,29 @@ type ReturnValue struct {
 // Represents an error object
 type Error struct {
 	Message string
+}
+
+// Returns the string representation
+// of the function object
+func (f *Function) Inspect() string {
+	var out bytes.Buffer
+	params := []string{}
+	for _, p := range f.Parameters {
+		params = append(params, p.String())
+	}
+	out.WriteString("func")
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ","))
+	out.WriteString(") {\n")
+	out.WriteString(f.Body.String())
+	out.WriteString("\n}")
+	return out.String()
+}
+
+// Returns the type of the function object
+// which is always a FUNCTION_OBJ
+func (f *Function) Type() ObjectType {
+	return FUNCTION_OBJ
 }
 
 // Returns the value of the integer object
@@ -96,4 +133,35 @@ func (e *Error) Inspect() string {
 // which is always a ERROR_OBJ
 func (e *Error) Type() ObjectType {
 	return ERROR_OBJ
+}
+
+/*
+ * Environment
+ */
+
+// Creates a new environment
+// with an empty store
+func NewEnvironment() *Environment {
+	s := make(map[string]Object)
+	return &Environment{store: s}
+}
+
+// Represents an environment with a store
+// that holds the bindings of the variables
+type Environment struct {
+	store map[string]Object
+}
+
+// Returns the object with the given name
+// contained in the store
+func (e *Environment) Get(name string) (Object, bool) {
+	obj, ok := e.store[name]
+	return obj, ok
+}
+
+// Sets the object with the given name
+// in the store
+func (e *Environment) Set(name string, val Object) Object {
+	e.store[name] = val
+	return val
 }

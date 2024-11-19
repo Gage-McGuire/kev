@@ -8,6 +8,7 @@ import (
 
 	"github.com/kev/evaluator"
 	"github.com/kev/lexer"
+	"github.com/kev/object"
 	"github.com/kev/parser"
 )
 
@@ -27,7 +28,7 @@ const PROMPT = ">> "
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
-
+	env := object.NewEnvironment()
 	for {
 		fmt.Fprint(out, PROMPT)
 		scanned := scanner.Scan()
@@ -42,7 +43,7 @@ func Start(in io.Reader, out io.Writer) {
 			printParserErrors(out, p.Errors())
 			continue
 		}
-		evaluated := evaluator.Eval(program)
+		evaluated := evaluator.Eval(program, env)
 		if evaluated != nil {
 			io.WriteString(out, evaluated.Inspect()+"\n")
 		}
@@ -50,7 +51,7 @@ func Start(in io.Reader, out io.Writer) {
 }
 
 func printParserErrors(out io.Writer, errors []string) {
-	io.WriteString(out, Red+"****** ERROR ******\n"+Reset)
+	io.WriteString(out, Red+"****** PARSING ERROR ******\n"+Reset)
 	io.WriteString(out, Yellow+"THE FOLLOWING ERRORS OCCURED:\n"+Reset)
 	for idx, msg := range errors {
 		io.WriteString(out, Gray+strconv.Itoa(idx+1)+": "+msg+Reset+"\n")
