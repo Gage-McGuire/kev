@@ -63,6 +63,12 @@ type IntegerLiteral struct {
 	Value int64       // the value of the integer
 }
 
+// Represents a string literal
+type StringLiteral struct {
+	Token token.Token
+	Value string
+}
+
 // Represents a prefix expression with a prefix operator
 type PrefixExpression struct {
 	Token    token.Token // the prefix token, e.g. !
@@ -140,6 +146,12 @@ func (es *ExpressionStatement) TokenLiteral() string {
 func (il *IntegerLiteral) expressionNode() {}
 func (il *IntegerLiteral) TokenLiteral() string {
 	return il.Token.Literal
+}
+
+// string
+func (sl *StringLiteral) expressionNode() {}
+func (sl *StringLiteral) TokenLiteral() string {
+	return sl.Token.Literal
 }
 
 // prefix
@@ -246,6 +258,11 @@ func (i *Identifier) String() string {
 // converts the integer literal to a string
 func (il *IntegerLiteral) String() string {
 	return il.TokenLiteral()
+}
+
+// converts the string literal to a string
+func (sl *StringLiteral) String() string {
+	return sl.TokenLiteral()
 }
 
 // converts the boolean to a string

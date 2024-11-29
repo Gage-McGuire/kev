@@ -12,6 +12,7 @@ type ObjectType string
 
 const (
 	INTEGER_OBJ      = "INTEGER"
+	STRING_OBJ       = "STRING"
 	BOOLEAN_OBJ      = "BOOLEAN"
 	NULL_OBJ         = "NULL"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
@@ -40,6 +41,11 @@ type Function struct {
 // Represents a integer object
 type Integer struct {
 	Value int64
+}
+
+// Represents a string object
+type String struct {
+	Value string
 }
 
 // Represents a boolean object
@@ -91,6 +97,16 @@ func (i *Integer) Inspect() string {
 // Returns the type of the integer object
 func (i *Integer) Type() ObjectType {
 	return INTEGER_OBJ
+}
+
+// Returns the value of the string object
+func (s *String) Inspect() string {
+	return s.Value
+}
+
+// Returns the type of the string object
+func (s *String) Type() ObjectType {
+	return STRING_OBJ
 }
 
 // Returns the value of the boolean object

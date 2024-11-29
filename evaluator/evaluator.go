@@ -145,6 +145,11 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		params := node.Parameters
 		body := node.Body
 		return &object.Function{Parameters: params, Body: body, Env: env}
+
+	// If the node is a *ast.StringLiteral,
+	// we return an object.String
+	case *ast.StringLiteral:
+		return &object.String{Value: node.Value}
 	}
 
 	// If we don't recognize the node, we return nil
@@ -265,12 +270,17 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 		return evalBooleanInfixExpression(operator, left, right)
 	}
 
+	switch {
 	// If the left and right objects are not the same type,
 	// we return a newError with the type mismatch
 	// or unknown operator
-	switch {
 	case left.Type() != right.Type():
 		return newError("type mismatch: %s %s %s", left.Type(), operator, right.Type())
+
+	// If the left and right objects are strings,
+	// we evaluate the infix expression by calling evalStringInfixExpression
+	case left.Type() == object.STRING_OBJ && right.Type() == object.STRING_OBJ:
+		return evalStringInfixExpression(operator, left, right)
 	default:
 		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}
@@ -300,6 +310,24 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 		return nativeBoolToBooleanObject(leftValue == rightValue)
 	case "!=":
 		return nativeBoolToBooleanObject(leftValue != rightValue)
+	default:
+		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
+	}
+}
+
+// evaluates the infix expression for strings
+// by checking the operator and returning the result.
+// Example: <leftValue> <operator> <rightValue>
+func evalStringInfixExpression(operator string, left, right object.Object) object.Object {
+	switch operator {
+	case "==":
+		return nativeBoolToBooleanObject(left.(*object.String).Value == right.(*object.String).Value)
+	case "!=":
+		return nativeBoolToBooleanObject(left.(*object.String).Value != right.(*object.String).Value)
+	case "+":
+		leftValue := left.(*object.String).Value
+		rightValue := right.(*object.String).Value
+		return &object.String{Value: leftValue + rightValue}
 	default:
 		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
 	}

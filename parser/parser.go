@@ -69,6 +69,7 @@ func New(l *lexer.Lexer) *Parser {
 	// register the prefix parser functions
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
+	p.registerPrefix(token.STRING, p.parseStringLiteral)
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.TRUE, p.parseBoolean)
@@ -244,6 +245,7 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	return stmt
 }
 
+// Parses a Integer Literal
 func (p *Parser) parseIntegerLiteral() ast.Expression {
 	// construct the integer literal node
 	lit := &ast.IntegerLiteral{Token: p.currentToken}
@@ -262,6 +264,12 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	return lit
 }
 
+// Parses a String Literal
+func (p *Parser) parseStringLiteral() ast.Expression {
+	return &ast.StringLiteral{Token: p.currentToken, Value: p.currentToken.Literal}
+}
+
+// Parses a Prefix Expression
 func (p *Parser) parsePrefixExpression() ast.Expression {
 	// construct the prefix expression node
 	// with the current token as the operator
@@ -282,6 +290,7 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	return expression
 }
 
+// Parses a Infix Expression
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	// construct the infix expression node
 	// with the current token as the operator

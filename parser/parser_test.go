@@ -147,6 +147,23 @@ func TestIntegerLiteralExpression(t *testing.T) {
 	}
 }
 
+func TestStringLiteralExpression(t *testing.T) {
+	input := `"hello world";`
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt := program.Statements[0].(*ast.ExpressionStatement)
+	str, ok := stmt.Expression.(*ast.StringLiteral)
+	if !ok {
+		t.Fatalf("exp not *ast.StringLiteral. got=%T", stmt.Expression)
+	}
+	if str.Value != "hello world" {
+		t.Errorf("str.Value not %s. got=%s", "hello world", str.Value)
+	}
+}
+
 func TestParsingPrefixExpressions(t *testing.T) {
 	prefixTests := []struct {
 		input    string
