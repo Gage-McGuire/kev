@@ -124,6 +124,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		if len(args) == 1 && isError(args[0]) {
 			return args[0]
 		}
+		return applyFunction(function, args)
 
 	/*
 	 * Identifiers
@@ -360,6 +361,38 @@ func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Ob
 		result = append(result, evaluated)
 	}
 	return result
+}
+
+// applyFunction checks if the function is a *object.Function
+// and applies the function by extending the environment
+func applyFunction(fn object.Object, args []object.Object) object.Object {
+	function, ok := fn.(*object.Function)
+	if !ok {
+		return newError("not a function: %s", fn.Type())
+	}
+	extendedEnv := extendFunctionEnv(function, args)
+	evaluated := Eval(function.Body, extendedEnv)
+	return unwrapReturnValue(evaluated)
+}
+
+// extendFunctionEnv creates a new enclosed environment with the
+// outer environment being set in the new environment as well
+func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Environment {
+	env := object.NewEnclosedEnvironment(fn.Env)
+	for paramIdx, param := range fn.Parameters {
+		env.Set(param.Value, args[paramIdx])
+	}
+	return env
+}
+
+// unwrapReturnValue unwraps the return value to ensure
+// the return value does not bubble up the stack and stop the
+// execution of the program
+func unwrapReturnValue(obj object.Object) object.Object {
+	if returnValue, ok := obj.(*object.ReturnValue); ok {
+		return returnValue.Value
+	}
+	return obj
 }
 
 // isTruthy checks if the object is truthy

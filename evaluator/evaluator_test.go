@@ -255,3 +255,14 @@ func TestFunctionApplication(t *testing.T) {
 		testIntegerObject(t, evaluated, tt.expected)
 	}
 }
+func TestClosures(t *testing.T) {
+	input := `
+	var newAdder = func(x) {
+		func(y) { x + y };
+	};
+	var addTwo = newAdder(2);
+	addTwo(2);
+	`
+	evaluated := testEval(input)
+	testIntegerObject(t, evaluated, 4)
+}
