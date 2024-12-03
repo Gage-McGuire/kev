@@ -18,6 +18,7 @@ const (
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
 	ERROR_OBJ        = "ERROR"
 	FUNCTION_OBJ     = "FUNCTION"
+	BUILTIN_OBJ      = "BUILTIN"
 )
 
 // Base representation of an object.
@@ -192,4 +193,26 @@ func (e *Environment) Get(name string) (Object, bool) {
 func (e *Environment) Set(name string, val Object) Object {
 	e.store[name] = val
 	return val
+}
+
+/*
+ * Built-in functions
+ */
+
+// Represents a built-in function
+type BuiltinFunction func(args ...Object) Object
+
+// Represents a built-in function object
+type Builtin struct {
+	Func BuiltinFunction
+}
+
+// Returns the value of the built-in function object
+func (b *Builtin) Inspect() string {
+	return "builtin function"
+}
+
+// Returns the Type of the built-in function object
+func (b *Builtin) Type() ObjectType {
+	return BUILTIN_OBJ
 }
