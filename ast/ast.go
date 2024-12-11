@@ -69,6 +69,18 @@ type StringLiteral struct {
 	Value string
 }
 
+// Represents a Array literal
+type ArrayLiteral struct {
+	Token    token.Token
+	Elements []Expression
+}
+
+// Represents a hash literal
+type HashLiteral struct {
+	Token token.Token
+	Pairs map[Expression]Expression
+}
+
 // Represents a prefix expression with a prefix operator
 type PrefixExpression struct {
 	Token    token.Token // the prefix token, e.g. !
@@ -118,6 +130,13 @@ type CallExpression struct {
 	Arguments []Expression // the arguments being passed to the function
 }
 
+// Represents an index expression
+type IndexExpression struct {
+	Token token.Token // the '[' token
+	Left  Expression  // the left expression
+	Index Expression  // the index expression
+}
+
 // variable
 func (vs *VarStatement) statementNode() {}
 func (vs *VarStatement) TokenLiteral() string {
@@ -152,6 +171,18 @@ func (il *IntegerLiteral) TokenLiteral() string {
 func (sl *StringLiteral) expressionNode() {}
 func (sl *StringLiteral) TokenLiteral() string {
 	return sl.Token.Literal
+}
+
+// array
+func (al *ArrayLiteral) expressionNode() {}
+func (al *ArrayLiteral) TokenLiteral() string {
+	return al.Token.Literal
+}
+
+// hash
+func (hl *HashLiteral) expressionNode() {}
+func (hl *HashLiteral) TokenLiteral() string {
+	return hl.Token.Literal
 }
 
 // prefix
@@ -194,6 +225,12 @@ func (fl *FunctionLiteral) TokenLiteral() string {
 func (ce *CallExpression) expressionNode() {}
 func (ce *CallExpression) TokenLiteral() string {
 	return ce.Token.Literal
+}
+
+// index
+func (ie *IndexExpression) expressionNode() {}
+func (ie *IndexExpression) TokenLiteral() string {
+	return ie.Token.Literal
 }
 
 // gets the root node of the AST
@@ -268,6 +305,38 @@ func (sl *StringLiteral) String() string {
 // converts the boolean to a string
 func (b *Boolean) String() string {
 	return b.TokenLiteral()
+}
+
+// converts the array literal to a string
+func (al *ArrayLiteral) String() string {
+	var out bytes.Buffer
+
+	elements := []string{}
+	for _, el := range al.Elements {
+		elements = append(elements, el.String())
+	}
+
+	out.WriteString("[")
+	out.WriteString(strings.Join(elements, ", "))
+	out.WriteString("]")
+
+	return out.String()
+}
+
+// converts the hash literal to a string
+func (hl *HashLiteral) String() string {
+	var out bytes.Buffer
+
+	pairs := []string{}
+	for key, value := range hl.Pairs {
+		pairs = append(pairs, key.String()+":"+value.String())
+	}
+
+	out.WriteString("{")
+	out.WriteString(strings.Join(pairs, ", "))
+	out.WriteString("}")
+
+	return out.String()
 }
 
 // converts the prefix expression to a string
@@ -352,6 +421,18 @@ func (ce *CallExpression) String() string {
 	out.WriteString("(")
 	out.WriteString(strings.Join(args, ", "))
 	out.WriteString(")")
+
+	return out.String()
+}
+
+func (ie *IndexExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(ie.Left.String())
+	out.WriteString("[")
+	out.WriteString(ie.Index.String())
+	out.WriteString("])")
 
 	return out.String()
 }
