@@ -187,7 +187,7 @@ func TestErrorHandling(t *testing.T) {
 		{"if (10 > 1) { if (10 > 1) { return true + false; } return 1; }", "unknown operator: BOOLEAN + BOOLEAN"},
 		{"foobar", "identifier not found: foobar"},
 		{`"Hello" - "World"`, "unknown operator: STRING - STRING"},
-		{`{"name": "Monkey"}[fn(x) { x }];`, "unusable as hash key: FUNCTION"},
+		{`{"name": "Monkey"}[func(x) { x }];`, "unusable as hash key: FUNCTION"},
 	}
 
 	for _, tt := range tests {
@@ -363,11 +363,11 @@ func TestArrayIndexExpressions(t *testing.T) {
 		{"[1, 2, 3][0]", 1},
 		{"[1, 2, 3][1]", 2},
 		{"[1, 2, 3][2]", 3},
-		{"let i = 0; [1][i];", 1},
+		{"var i = 0; [1][i];", 1},
 		{"[1, 2, 3][1 + 1];", 3},
-		{"let myArray = [1, 2, 3]; myArray[2];", 3},
-		{"let myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2];", 6},
-		{"let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]", 2},
+		{"var myArray = [1, 2, 3]; myArray[2];", 3},
+		{"var myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2];", 6},
+		{"var myArray = [1, 2, 3]; var i = myArray[0]; myArray[i]", 2},
 		{"[1, 2, 3][3]", nil},
 		{"[1, 2, 3][-1]", nil},
 	}
@@ -384,7 +384,7 @@ func TestArrayIndexExpressions(t *testing.T) {
 }
 
 func TestHashLiterals(t *testing.T) {
-	input := `let two = "two";
+	input := `var two = "two";
 	{
 		"one": 10 - 9,
 		two: 1 + 1,
@@ -425,7 +425,7 @@ func TestHashIndexExpressions(t *testing.T) {
 	}{
 		{`{"foo": 5}["foo"]`, 5},
 		{`{"foo": 5}["bar"]`, nil},
-		{`let key = "foo"; {"foo": 5}[key]`, 5},
+		{`var key = "foo"; {"foo": 5}[key]`, 5},
 		{`{}["foo"]`, nil},
 		{`{5: 5}[5]`, 5},
 		{`{true: 5}[true]`, 5},
