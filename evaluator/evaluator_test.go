@@ -371,7 +371,6 @@ func TestArrayIndexExpressions(t *testing.T) {
 		{"[1, 2, 3][3]", nil},
 		{"[1, 2, 3][-1]", nil},
 	}
-
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
 		integer, ok := tt.expected.(int)

@@ -60,7 +60,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return &object.ReturnValue{Value: val}
 
 	// If the node is a *ast.VarStatement,
-	// we evaluate the value of the let statement
+	// we evaluate the value of the var statement
 	// and store it in the enviroment
 	case *ast.VarStatement:
 		val := Eval(node.Value, env)
