@@ -35,13 +35,6 @@ type Object interface {
 	Inspect() string
 }
 
-// Represents a function object
-type Function struct {
-	Parameters []*ast.Identifier
-	Body       *ast.BlockStatement
-	Env        *Environment
-}
-
 // Represents a integer object
 type Integer struct {
 	Value int64
@@ -74,18 +67,25 @@ type Array struct {
 	Elements []Object
 }
 
+// Represents a function object
+type Function struct {
+	Parameters []*ast.Identifier
+	Body       *ast.BlockStatement
+	Env        *Environment
+}
+
 type HashPair struct {
 	Key   Object
 	Value Object
 }
 
-type Hash struct {
-	Pairs map[HashKey]HashPair
-}
-
 type HashKey struct {
 	Type  ObjectType
 	Value uint64
+}
+
+type Hash struct {
+	Pairs map[HashKey]HashPair
 }
 
 type Hashable interface {

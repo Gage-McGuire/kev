@@ -10,7 +10,6 @@
     - [OBJECT](#object)<br>
     - [AST](#ast)<br>
     - [LEXER](#lexer)<br>
-    - [PARSER](#parser)<br>
     - [EVALUATOR](#evaluator)<br>
 
 ## INTRODUCTION
@@ -114,11 +113,88 @@ That's pretty much it, not much else to explain. Like I said, you'll understand 
 <br>
 
 ### OBJECT
+Now we might be jumping the gun here since the object package doesn't get used/populated till later. However, sticking with the partern of introducing the different structs that are used we'll just go ahead a do it.
 
-### AST
+So in the `object.go` file you can start to see the different data types and what exactly is being stored as an object in kev. For instance, The `Hash{}` struct does not just hold a hash map. It holds a value named `Pairs` which is a map of `HashKeys` and `HashPairs` both of which have their own structs that hold values that are important to its own goals. The Hash data type might be one of the more advance objects so we'll come back to it once we see whats going on with the rest of the code in `object.go`.
+
+Alrighty, starting from the top! The first thing we come across is the `ObjectType` and this is exactly what it says it is. It simply stores the data type of said object. We can assume this `ObjectType` will be one the following types that are defined in the constant below. This brings us to the `Object` interface. This was stated back in [GENERAL CONTROL FLOW](#general-control-flow) but this interface implements the `Type()` and `Inspect()` functions. The `Type()` function will return the data type of the object and the `Inspect()` function will return the value of the Object. This `Object` interface can be thought of as the base representation of an Object. So whenever you see a `object.Object` you know its this interface.
+
+Next lets look at the objects that make use of Go's native data types:
+```
+type Integer struct {
+	Value int64
+}
+
+type String struct {
+	Value string
+}
+
+type Boolean struct {
+	Value bool
+}
+
+type Null struct{}
+
+type Error struct {
+	Message string
+}
+```
+All theses objects simply have the same data type as they do in go so there really isn't much "sauce" going on.
+
+Now lets see the more unique/complex objects:
+```
+type ReturnValue struct {
+	Value Object
+}
+
+type Array struct {
+	Elements []Object
+}
+
+type Function struct {
+	Parameters []*ast.Identifier
+	Body       *ast.BlockStatement
+	Env        *Environment
+}
+
+type Hash struct {
+	Pairs map[HashKey]HashPair
+}
+```
+Let's just go down the list starting with the `ReturnValue` struct. This struct represents the return statement. Something to keep in mind is this object holds the value of the return AFTER it is evaluated... here is an example
+```
+return(2+2) is represented as the following object
+
+ReturnValue {
+    Value = Object{ 
+        Type() = INTEGER_OBJ
+        Inspect() = 4
+    }
+}
+``` 
+The `Array` object works the same what but just holds all the objects in a slice. The `Function` object is where we start to run into things that we really havent seen before. Since we haven't discussed the [AST](#ast) yet don't worry to much about knowing exactly whats happening, I'll give you the gist. First we have a value called `Parameters` this is a slice of identifiers that are passed to the function. Next we have a `Body` which is a block statement, simply put its the code contained in the function. Lastly we have the `Env` which is the Enviroment object, we'll talk about this object in a second. Just know this is the outer enviroment that is surrounding the function. Just like the function object the `Hash` object might have some moving parts that dont make sense right now. The only thing you need to know is the key and value are stored in a `map[HashKey]HashPair`. The `Hash` object will come together and make sense in the [EVALUATOR](#evaluator).
+
+The one thing that is consistent across all these objects is how they implement the `Type()` and `Inspect()` functions. Some of these functions have more going on than others but it's really just for string formatting and making the string representation of the object look pretty.  
+
+BUT WAIT THERES MORE! If you look at the end of `object.go` you get to the section that holds the code for enviroments and built-in functions. I promise this is the last part of `object.go` and we can move onto the actual fun stuff.
+
+When it comes to the enviroment, it all starts with the `NewEnvironment()` functon. This function makes a new store which is a `map[string]Object` and sets `outer = nil`. Outer will eventaually be set to a `*Enviroment`, This will represent the encompassing enviroment. The very next function is used to do exactly that. `NewEnclosedEnvironment(outer *Environment)` makes a new environment then takes the surrounding environment and sets it to outer. This way global/surrounding vairables will still be available in the enclosed enviroment but prohibits the action the other way around. The outer environment will never know the existence of the enclosed environment. Now let's see how we set and get the objects stored in environments. First we can set objects in the environment with the `Set(name string, val Object)` function. This function is called on a pointer to an environment so the name/object will get set in the corresponding store. Just like the `Set()` function, the `Get(name string)` function is called on a pointer to an environment. It first checks if the environment has the name in it's store. If it does, it returns the corresponding object. However, if doesn't it checks if there is a outer environment set, if so it then checks that environment.
+
+Finally we get to built-in function objects. There isn't much going on since all thats really happening is the `Builtin` object stores the function that is to be used. Again this is another situation where you don't need to worry to much about whats going on and things pertaining to builtins will be explained better in the [EVALUATOR](#evaluator). 
+
+With that we finished the object package! To recap, all that we are trying to doing in this package is make structs that can represent different aspects of objects that we use within kev. These aspects are super benfical with telling us the data types of the objects, giving us string representations of the values of the objects, and holding key value pairs for certain objects.    
+
+<br>
+<br>
 
 ### LEXER
 
+<br>
+<br>
+
 ### PARSER
+
+<br>
+<br>
 
 ### EVALUATOR
