@@ -20,6 +20,36 @@ Since this was a learning opportunity I tried to comment things rather... *verbo
 If you want to just test out kev and see what it can do, you can start with the [BASICS OF KEV](#basics-of-kev) section. However if you want a more indepth explanation of the code you can skip to the [DIVE INTO THE CODE](#dive-into-the-code) section.  
 
 ## BASICS OF KEV
+*scripts to add kev to your path are in the works*
+### Setup
+For now if you want to start seeing what Kev can do you need to have Golang installed. Then you can `go run .` in the project directory. You should have something like the following show up.
+```
+       ,--.                       
+   ,--/  /|    ,---,.             
+,---,': / '  ,'  .' |       ,---. 
+:   : '/ / ,---.'   |      /__./| 
+|   '   ,  |   |   .' ,---.;  ; | 
+'   |  /   :   :  |-,/___/ \  | | 
+|   ;  ;   :   |  ;/|\   ;  \ ' | 
+:   '   \  |   :   .' \   \  \: | 
+|   |    ' |   |  |-,  ;   \  ' . 
+'   : |.  \'   :  ;/|   \   \   ' 
+|   | '_\.'|   |    \    \   `  ; 
+'   : |    |   :   .'     :   \ | 
+;   |,'    |   | ,'        '---"  
+'---'      `----'                 
+                                           
+>> 
+```
+Now you can start typing commands!
+
+### Variables
+You're able to define a new variable with the `var` key word
+```
+var x = 5
+var hello = "world"
+var map_example = {"key":"value"}
+```
 
 ## DIVE INTO THE CODE
 This section was orginally going to go step by step through the processes and control flow of executing a given set of instructions. However, I found that approach to be sporadic when trying to explain each component of the code. So, This section is split into eight parts each of which has the following corresponding goal.<br>
