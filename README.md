@@ -111,7 +111,7 @@ Token {
 }
 
 
-The string "Hello world" woulda have the following Token struct:
+The string "Hello world" would have the following Token struct:
 
 Token {
     Type = STRING
