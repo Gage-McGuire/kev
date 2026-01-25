@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"strconv"
 
 	"github.com/kev/evaluator"
@@ -26,7 +27,27 @@ const (
 
 const PROMPT = ">> "
 
-func Start(in io.Reader, out io.Writer) {
+func RunFile(fileName string) {
+	contents, err := os.ReadFile(fileName)
+	if err != nil {
+		panic(err)
+	}
+
+	env := object.NewEnvironment()
+	l := lexer.New(string(contents))
+	p := parser.New(l)
+	program := p.ParseProgram()
+	if len(p.Errors()) != 0 {
+		printParserErrors(os.Stdout, p.Errors())
+		return
+	}
+	lastEvaluated := evaluator.Eval(program, env)
+	if lastEvaluated != nil {
+		io.WriteString(os.Stdout, lastEvaluated.Inspect()+"\n")
+	}
+}
+
+func RunPrompt(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
 	env := object.NewEnvironment()
 	for {
