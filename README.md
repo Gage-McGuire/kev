@@ -1,3 +1,13 @@
+#### Following adds support for passing files instead of prompting throght the terminal
+```
+// builds the kev binary and installs it so the kev cmd can be used
+go build -o kev
+go install
+
+// in the dir your .kev file is located
+kev run <fileName>.kev
+```
+
 ### ---- README IS STILL IN PROGRESS ----
 
 # KEV
