@@ -7,6 +7,7 @@ go install
 # in the dir your .kev file is located
 kev run <fileName>.kev
 ```
+*Keep up with the KEV language server [here](https://github.com/Gage-McGuire/kev-lsp)*
 
 ### ---- README IS STILL IN PROGRESS ----
 
