@@ -7,10 +7,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/kev/evaluator"
-	"github.com/kev/lexer"
-	"github.com/kev/object"
-	"github.com/kev/parser"
+	"github.com/Gage-McGuire/kev/evaluator"
+	"github.com/Gage-McGuire/kev/lexer"
+	"github.com/Gage-McGuire/kev/object"
+	"github.com/Gage-McGuire/kev/parser"
 )
 
 const (

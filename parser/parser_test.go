@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kev/ast"
-	"github.com/kev/lexer"
+	"github.com/Gage-McGuire/kev/ast"
+	"github.com/Gage-McGuire/kev/lexer"
 )
 
 func TestVarStatements(t *testing.T) {

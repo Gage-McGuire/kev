@@ -3,9 +3,9 @@ package parser
 import (
 	"strconv"
 
-	"github.com/kev/ast"
-	"github.com/kev/lexer"
-	token "github.com/kev/token"
+	"github.com/Gage-McGuire/kev/ast"
+	"github.com/Gage-McGuire/kev/lexer"
+	token "github.com/Gage-McGuire/kev/token"
 )
 
 // Parser struct

@@ -3,8 +3,8 @@ package evaluator
 import (
 	"fmt"
 
-	"github.com/kev/ast"
-	"github.com/kev/object"
+	"github.com/Gage-McGuire/kev/ast"
+	"github.com/Gage-McGuire/kev/object"
 )
 
 var (

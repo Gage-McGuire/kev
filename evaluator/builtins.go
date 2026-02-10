@@ -1,7 +1,7 @@
 package evaluator
 
 import (
-	"github.com/kev/object"
+	"github.com/Gage-McGuire/kev/object"
 )
 
 // Builtins is a map of built-in functions

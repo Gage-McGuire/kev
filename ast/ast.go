@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/kev/token"
+	"github.com/Gage-McGuire/kev/token"
 )
 
 // Node is the interface that all nodes in the AST implement
